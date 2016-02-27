@@ -1,10 +1,3 @@
-/*
-ビルド手順
-avr-gcc -mmcu=atmega168 -Wall -Os -DF_CPU=10000000 -I./ -o lcd.out lcd.c
-avr-objcopy -O ihex lcd.out lcd.c.hex
-sudo avrdude -p m168 -c avrisp2 -U lcd.c.hex
- */
-
 #include <avr/io.h>
 
 #define	LCD_PORT	PORTD
@@ -68,7 +61,7 @@ static void lcd_init(void)
 	lcd_write4(0b00101000);
 
 	lcd_write4(0b00000110);
-	lcd_write4(0b00001100);
+	lcd_write4(0b00001111);
 
 	lcd_write4(0b00000001);
 	waitms(2);
@@ -84,11 +77,30 @@ static void lcd_puts(char *s)
 
 int main(void)
 {
+	char str[16];
+
 	PORTD = 0;
 	DDRD = 0xfc;
 
 	lcd_init();
-	lcd_puts("Hello");
+
+	lcd_puts("Hello World!");
+
+	LCD_RS(0);
+	lcd_write4(0xc0);
+
+	str[0] = 0xca;
+	str[1] = 0xdb;
+	str[2] = 0xb0;
+	str[3] = ' ';
+	str[4] = 0xdc;
+	str[5] = 0xb0;
+	str[6] = 0xd9;
+	str[7] = 0xc4;
+	str[8] = 0xde;
+	str[9] = '!';
+	str[10] = '\0';
+	lcd_puts(str);
 
 	while (1);
 
