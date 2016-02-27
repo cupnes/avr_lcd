@@ -61,7 +61,7 @@ static void lcd_init(void)
 	lcd_write4(0b00101000);
 
 	lcd_write4(0b00000110);
-	lcd_write4(0b00001111);
+	lcd_write4(0b00001100);
 
 	lcd_write4(0b00000001);
 	waitms(2);
@@ -75,8 +75,17 @@ static void lcd_puts(char *s)
 	}
 }
 
+static void sleep(void)
+{
+	volatile unsigned short i, j;
+
+	for (i = 0; i < 1000; i++)
+		for (j = 0; j < 65; j++);
+}
+
 int main(void)
 {
+	volatile unsigned short i;
 	char str[16];
 
 	PORTD = 0;
@@ -84,25 +93,15 @@ int main(void)
 
 	lcd_init();
 
-	lcd_puts("Hello World!");
+	str[0] = '0';
+	str[1] = '\0';
+	while (1) {
+		lcd_puts(str);
+		str[0]++;
 
-	LCD_RS(0);
-	lcd_write4(0xc0);
-
-	str[0] = 0xca;
-	str[1] = 0xdb;
-	str[2] = 0xb0;
-	str[3] = ' ';
-	str[4] = 0xdc;
-	str[5] = 0xb0;
-	str[6] = 0xd9;
-	str[7] = 0xc4;
-	str[8] = 0xde;
-	str[9] = '!';
-	str[10] = '\0';
-	lcd_puts(str);
-
-	while (1);
+		for (i = 0; i < 5; i++)
+			sleep();
+	}
 
 	return 0;
 }
